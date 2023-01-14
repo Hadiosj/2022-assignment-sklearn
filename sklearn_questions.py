@@ -63,7 +63,6 @@ from sklearn.utils.multiclass import unique_labels
 from scipy import stats
 
 
-
 class KNearestNeighbors(BaseEstimator, ClassifierMixin):
     """KNearestNeighbors classifier."""
 
@@ -111,10 +110,10 @@ class KNearestNeighbors(BaseEstimator, ClassifierMixin):
         """
         check_is_fitted(self)
         X = check_array(X)
-        distances = pairwise_distances(X,self.X_)
-        index_of_neighbors = np.argpartition(distances, self.n_neighbors)[:, :self.n_neighbors]
+        distances = pairwise_distances(X, self.X_)
+        index_of_neighbors = (np.argpartition(distances, self.n_neighbors)
+                              [:, :self.n_neighbors])
         return stats.mode(self.y_[index_of_neighbors], axis=1)[0].flatten()
-
 
     def score(self, X, y):
         """Calculate the score of the prediction.
