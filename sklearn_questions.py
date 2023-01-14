@@ -112,7 +112,7 @@ class KNearestNeighbors(BaseEstimator, ClassifierMixin):
         check_is_fitted(self)
         X = check_array(X)
         distances = pairwise_distances(X,self.X_)
-        index_of_neighbors = np.argpartition(X, -1)[:, self.n_neighbors]
+        index_of_neighbors = np.argpartition(distances, self.n_neighbors)[:, :self.n_neighbors]
         return stats.mode(self.y_[index_of_neighbors], axis=1)[0].flatten()
 
 
@@ -131,7 +131,9 @@ class KNearestNeighbors(BaseEstimator, ClassifierMixin):
         score : float
             Accuracy of the model computed for the (X, y) pairs.
         """
-        return 0.
+        X, y = check_X_y(X, y)
+        score = y == self.predict(X)
+        return np.average(score)
 
 
 class MonthlySplit(BaseCrossValidator):
