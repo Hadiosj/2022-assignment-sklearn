@@ -59,6 +59,9 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 from sklearn.utils.validation import check_array
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.metrics.pairwise import pairwise_distances
+from sklearn.utils.multiclass import unique_labels
+from scipy import stats
+
 
 
 class KNearestNeighbors(BaseEstimator, ClassifierMixin):
@@ -82,6 +85,15 @@ class KNearestNeighbors(BaseEstimator, ClassifierMixin):
         self : instance of KNearestNeighbors
             The current instance of the classifier
         """
+        # Check the type of y
+        check_classification_targets(y)
+
+        # Check that X and y have correct shape
+        self.X_, self.y_ = check_X_y(X, y)
+
+        # Store the classes seen during fit
+        self.classes_ = unique_labels(self.y_)
+        self.n_features_in_ = (self.X_).shape[1]
         return self
 
     def predict(self, X):
@@ -97,8 +109,12 @@ class KNearestNeighbors(BaseEstimator, ClassifierMixin):
         y : ndarray, shape (n_test_samples,)
             Predicted class labels for each test data sample.
         """
-        y_pred = np.zeros(X.shape[0])
-        return y_pred
+        check_is_fitted(self)
+        X = check_array(X)
+        distances = pairwise_distances(X,self.X_)
+        index_of_neighbors = np.argpartition(X, -1)[:, self.n_neighbors]
+        return stats.mode(self.y_[index_of_neighbors], axis=1)[0].flatten()
+
 
     def score(self, X, y):
         """Calculate the score of the prediction.
